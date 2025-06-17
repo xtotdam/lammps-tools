@@ -13,7 +13,7 @@ lammps-tools
 
 ```
 # python archive_run.py --help
-usage: LAMMPS Runner [-h] [-c] [-d] [-m MESSAGE] [-r] command
+usage: LAMMPS Runner [-h] [-c] [-d] [-n] [-m [MESSAGE ...]] [-r] command [command ...]
 
 Runs LAMMPS, compiles NEB files, archives all data
 
@@ -24,14 +24,17 @@ options:
   -h, --help            show this help message and exit
   -c, --skip-neb        Skip compiling NEB
   -d, --skip-delete     Skip deletion of files
-  -m MESSAGE, --message MESSAGE
+  -n, --skip-ntfy       Skip NTFY request
+  -m [MESSAGE ...], --message [MESSAGE ...]
                         Create run description in description.txt. Skips doing it interactively
   -r, --recover         Try to recover a failed run, doing everything except running command
 ```
 
 #### Пример запуска
 
-`python archive_run.py -m "ontop K=100" mpirun -np 8 lmp -partition 8x1 -var K 100 -in ontop-neb.lmp`
+`python archive_run.py -m "ontop K=100" -- mpirun -np 8 lmp -partition 8x1 -var K 100 -in ontop-neb.lmp`
+
+`parallel -j1 tsp python archive_run.py -m "K={}" -- mpirun -np 8 lmp -partition 8x1 -var K {} -in ontop-neb.lmp ::: 1 10 100`
 
 #### Зависимости
 

@@ -131,11 +131,11 @@ class LammpsRun:
         print(f'<{self.id}> Neb parse success: {N} replicas, {len(df2)} lines of data')
 
 
-    def view_lammpsdata_with_ase(self, _file, repeat=(1,1,1)):
+    def view_lammpsdata_with_ase(self, _file, repeat=(1,1,1), units='real', atom_style='charge'):
         import ase.io.lammpsdata as lammpsdata
         from ase.visualize import view
 
-        data = lammpsdata.read_lammps_data(self.get_file(_file), units='real', atom_style='charge')
+        data = lammpsdata.read_lammps_data(self.get_file(_file), units=units, atom_style=atom_style)
         view(data, repeat=repeat)
 
 

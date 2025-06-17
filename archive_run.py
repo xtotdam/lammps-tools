@@ -33,22 +33,23 @@ import argparse
 parser = argparse.ArgumentParser(prog='LAMMPS Runner', description='Runs LAMMPS, compiles NEB files, archives all data', epilog=f'v{__version__}')
 parser.add_argument('-c', '--skip-neb', action='store_true', help='Skip compiling NEB')
 parser.add_argument('-d', '--skip-delete', action='store_true', help='Skip deletion of files')
-parser.add_argument('-m', '--message', help='Create run description in description.txt. Skips doing it interactively')
-parser.add_argument('-r', '--recover', action='store_true', help='Try to recover a failed run, doing everything except running command')
-parser.add_argument('command', help='LAMMPS command to run')
-args, unknown = parser.parse_known_args()
-unknown.insert(0, args.command)
-args.command = ' '.join(unknown)
+parser.add_argument('-n', '--skip-ntfy', action='store_true', help='Skip NTFY request')
+parser.add_argument('-m', '--message', nargs='*', help='Create run description in description.txt. Skips doing it interactively')
+parser.add_argument('-r', '--skip-run', action='store_true', help='Try to recover a failed run, doing everything except running LAMMPS directly')
+parser.add_argument('command', nargs='+', help='LAMMPS command to run')
+args = parser.parse_args()
+args.message = ' '.join(args.message)
 print(args)
 
 
+
 ### check for common mistakes in script
-# quit
+# uncommented quit?
 
 
 
 ### run LAMMPS
-if not args.recover:
+if not args.skip_run:
     import subprocess
     print('Command:', args.command)
     cp = subprocess.run(args.command, shell=True)
@@ -138,11 +139,14 @@ if not args.skip_delete:
 
 
 ### send notification
-import getpass
-import requests
+if not args.skip_ntfy:
+    import getpass
+    import requests
 
-topic = getpass.getuser()
-message = f'{args.message}\n{args.command}\n{archive_name}'
-requests.post(f"http://gencluster16.phys.msu.ru:18480/{topic}", data=message.encode(encoding='utf-8'))
+    topic = getpass.getuser()
+    message = f'{args.message}\n{args.command}\n{archive_name}'
+    requests.post(f"https://***REMOVED***/{topic}", data=message.encode(encoding='utf-8'))
 
+
+# in the end
 print(archive_name)
