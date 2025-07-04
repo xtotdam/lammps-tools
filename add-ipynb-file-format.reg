@@ -1,0 +1,10 @@
+ Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\.ipynb]
+@="ipynb"
+
+[HKEY_CLASSES_ROOT\.ipynb\ShellNew]
+"NullFile"=""
+
+[HKEY_CLASSES_ROOT\ipynb]
+@="Blank Jupyter Notebook"

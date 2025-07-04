@@ -39,6 +39,8 @@ class LammpsRunFolder:
 
 
     def get_by_id(self, _id):
+        _id = _id.strip()
+        if not _id: return None
         pattern = f'*{_id}*'
         runs = self.find(pattern)
         if len(runs) == 1:
