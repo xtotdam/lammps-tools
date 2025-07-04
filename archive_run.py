@@ -38,6 +38,7 @@ except ImportError:
 from pathlib import Path
 from shlex import join as shlex_join
 import argparse
+import datetime
 import getpass
 import io
 import json
@@ -68,6 +69,8 @@ class LammpsRunner:
 
         timestring = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
         self.archive_name = f"lammpsrun_{timestring}_{self.metadata['id']}.tar.bz2"
+
+        self.starttime = time.time()
 
 
     def __str__(self):
@@ -139,10 +142,20 @@ class LammpsRunner:
 
     def notify(self):
         topic = getpass.getuser()
-        message = f'{self.message}\n{self.command}\n{self.archive_name}'
+        runtime = time.time() - self.starttime
+        runtime = str(datetime.timedelta(seconds=runtime))
+
+        cp = subprocess.run('tsp -l', shell=True, capture_output=True)
+        out = cp.stdout.decode('utf8')
+        running = out.count(' running ')
+        queued = out.count(' queued ')
+
+        headers={"Title": f"{self.message}"}
+
+        message = f'{self.message}\n{self.command}\n{self.runid}\n{runtime}\n{running} run, {queued} in queue'
         try:
             requests.post(f"https://***REMOVED***/{topic}",
-                data=message.encode(encoding='utf-8'))
+                data=message.encode(encoding='utf-8'), headers=headers)
         except Exception as e:
             print(e)
 
