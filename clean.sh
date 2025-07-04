@@ -7,4 +7,7 @@ rm -vf dump.nonneb.*
 rm -vf screen.*
 rm -vf tmp.lammps.variable
 
+rm -iv out.*.lammpsdata
+rm -iv out.replica.*.lammpstrj
+
 # rm -vf *.lammpsdata

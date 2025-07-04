@@ -2,3 +2,11 @@ __pycache__
 
 ge.xyz
 ts-finished
+/log.lammps
+
+/runs/
+
+# taken from lammps repo
+/python/   
+
+/test*
