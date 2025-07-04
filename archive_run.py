@@ -152,7 +152,7 @@ class LammpsRunner:
 
         headers={"Title": f"{self.message}"}
 
-        message = f'{self.message}\n{self.command}\n{self.runid}\n{runtime}\n{running} run, {queued} in queue'
+        message = f'{self.message}\n{self.command}\n{self.run_id}\n{runtime}\n{running} run, {queued} in queue'
         try:
             requests.post(f"https://***REMOVED***/{topic}",
                 data=message.encode(encoding='utf-8'), headers=headers)
