@@ -99,9 +99,13 @@ class LammpsRunner:
 
 
     def compile_neb(self):
-        for line in neb_compile_commands:
-            cp = subprocess.run(line, shell=True)
-            print(cp)
+        try:
+            for line in neb_compile_commands:
+                cp = subprocess.run(line, shell=True)
+                print(cp)
+        except Exception as e:
+            print('NEB compilation failed! Do it later manually')
+            print(e)
 
 
     def create_file_lists(self):
@@ -152,7 +156,10 @@ class LammpsRunner:
 
         headers={"Title": f"{self.message}"}
 
-        message = f'{self.message}\n{self.command}\n{self.run_id}\n{runtime}\n{running} run, {queued} in queue'
+        message = f'{self.command}\nID {self.run_id}\nRuntime {runtime}\n{running} run, {queued} in queue'
+
+        if running + queued == 1: message += ' --- I am last!'
+
         try:
             requests.post(f"https://***REMOVED***/{topic}",
                 data=message.encode(encoding='utf-8'), headers=headers)
