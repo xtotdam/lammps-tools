@@ -18,7 +18,7 @@ try:
 except ImportError:
     print('Module "rich" not found, no problem')
 
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Tuple
 
 
 class LammpsRunFolder:
@@ -32,13 +32,13 @@ class LammpsRunFolder:
         return f'<LammpsRunFolder {self.path} : {len(self.find())} runs>'
 
 
-    def find(self, pattern='*'):
+    def find(self, pattern:str='*'):
         ''' can be used like find('*id*') '''
         runs = self.path.glob(f'lammpsrun_{pattern}.tar.bz2')
         return sorted(list(runs))
 
 
-    def get_by_id(self, _id):
+    def get_by_id(self, _id:str):
         _id = _id.strip()
         if not _id: return None
         pattern = f'*{_id}*'
@@ -100,7 +100,7 @@ class LammpsRun:
         return f'* <{self.metadata["id"]}> {self.path.name}\t[{self.metadata["description"]}]\n    CMD: {self.metadata["command"]}'
 
 
-    def get_file(self, name):
+    def get_file(self, name:str):
         with tarfile.open(self.path, 'r') as archive:
             return StringIO(archive.extractfile(name).read().decode())
 
@@ -133,7 +133,7 @@ class LammpsRun:
         print(f'<{self.id}> Neb parse success: {N} replicas, {len(df2)} lines of data')
 
 
-    def view_lammpsdata_with_ase(self, _file, repeat=(1,1,1), units='real', atom_style='charge'):
+    def view_lammpsdata_with_ase(self, _file:str, repeat:Tuple[int,int,int]=(1,1,1), units:str='real', atom_style:str='charge'):
         import ase.io.lammpsdata as lammpsdata
         from ase.visualize import view
 
@@ -148,7 +148,7 @@ class LammpsRun:
         return data
 
 
-    def get_energy_path_traces(self, row=-1, substract_min=True, name=None):
+    def get_energy_path_traces(self, row:int=-1, substract_min:bool=True, name:str=None):
         rd = self.neb_df.iloc[row].get([f'RD{x}' for x in range(1, self.neb_replicas+1)]).values
         pe = self.neb_df.iloc[row].get([f'PE{x}' for x in range(1, self.neb_replicas+1)]).values
 
