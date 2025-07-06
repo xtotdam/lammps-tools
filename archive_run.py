@@ -60,7 +60,7 @@ class LammpsRunner:
         self.message = ' '.join(args.message)
 
         self.cwd = Path.cwd()
-        self.new_cwd = self.cwd / self.run_id
+        self.new_cwd = self.cwd / 'runs' / self.run_id
 
         self.metadata = dict()
         self.metadata['command'] = self.command
@@ -87,7 +87,7 @@ class LammpsRunner:
 
         print(run_files)
 
-        self.new_cwd.mkdir()
+        self.new_cwd.mkdir(parents=True)
         for f in run_files: shutil.copy(f, self.new_cwd)
 
 
@@ -145,7 +145,11 @@ class LammpsRunner:
 
 
     def notify(self):
-        topic = getpass.getuser()
+        ntfy_topic = os.getenv('NTFY_TOPIC')
+        if ntfy_topic is None:
+            print('Cannot notify: NTFY_TOPIC environment variable is not set. See ntfy docs for more info.')
+            return None
+
         runtime = time.time() - self.starttime
         runtime = str(datetime.timedelta(seconds=runtime))
 
@@ -154,15 +158,16 @@ class LammpsRunner:
         running = out.count(' running ')
         queued = out.count(' queued ')
 
-        headers={"Title": f"{self.message}"}
-
-        message = f'{self.command}\nID {self.run_id}\nRuntime {runtime}\n{running} run, {queued} in queue'
+        title = f"[{self.run_id}] {self.message}"
+        message = f'{self.command}\nRuntime {runtime}\n{running} run, {queued} in queue'
 
         if running + queued == 1: message += ' --- I am last!'
 
+        print(message)
+
         try:
-            requests.post(f"https://***REMOVED***/{topic}",
-                data=message.encode(encoding='utf-8'), headers=headers)
+            requests.post(ntfy_topic, data=message.encode(encoding='utf-8'),
+                headers={"Title": title})
         except Exception as e:
             print(e)
 
