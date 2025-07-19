@@ -1,5 +1,7 @@
 __pycache__
 
+*.lammpstrj
+
 ge.xyz
 ts-finished
 /log.lammps

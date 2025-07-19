@@ -95,7 +95,7 @@ class LammpsRunner:
         lammps_completed_process = subprocess.run(self.command, shell=True)
 
         if lammps_completed_process.returncode != 0:
-            raise ChildProcessError(f'LAMMPS returned {lammps_completed_process.returncode}')
+            raise ChildProcessError(f'LAMMPS returned {lammps_completed_process.returncode}\n\nRun ID {self.run_id}')
 
 
     def compile_neb(self):
@@ -186,7 +186,7 @@ if __name__ == '__main__':
     print(args)
 
     app = LammpsRunner(args)
-    print(app)
+    print(f'\n{app}\n')
 
     app.copy_to_temp_dir()
 
