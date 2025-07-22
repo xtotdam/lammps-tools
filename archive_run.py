@@ -92,10 +92,10 @@ class LammpsRunner:
 
 
     def run_lammps(self):
-        lammps_completed_process = subprocess.run(self.command, shell=True)
-
-        if lammps_completed_process.returncode != 0:
-            raise ChildProcessError(f'LAMMPS returned {lammps_completed_process.returncode}\n\nRun ID {self.run_id}')
+        try:
+            lammps_completed_process = subprocess.run(self.command, shell=True, check=True)
+        except KeyboardInterrupt:
+            pass
 
 
     def compile_neb(self):

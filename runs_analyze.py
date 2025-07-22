@@ -110,7 +110,7 @@ class LammpsRun:
 
 
     @cache
-    def parse_neb(self):
+    def parse_neb(self, quiet:bool=True):
         if self.neb_df is not None:
             print(f'<{self.id}> Neb dataframe already created')
             return
@@ -130,7 +130,8 @@ class LammpsRun:
         df2 = pd.read_csv(StringIO(''.join(lines[climbing_line+1:])), sep=r'\s+')    # climbing NEB
         self.neb_df = df2
 
-        print(f'<{self.id}> Neb parse success: {N} replicas, {len(df2)} lines of data')
+        if not quiet:
+            print(f'<{self.id}> Neb parse success: {N} replicas, {len(df2)} lines of data')
 
 
     def view_lammpsdata_with_ase(self, _file:str, repeat:Tuple[int,int,int]=(1,1,1), units:str='real', atom_style:str='charge'):
@@ -148,11 +149,12 @@ class LammpsRun:
         return data
 
 
-    def get_energy_path_traces(self, row:int=-1, substract_min:bool=True, name:str=None):
+    def get_energy_path_traces(self, row:int=-1, substract_min:bool=True, name:str=None, quiet:bool=True):
         rd = self.neb_df.iloc[row].get([f'RD{x}' for x in range(1, self.neb_replicas+1)]).values
         pe = self.neb_df.iloc[row].get([f'PE{x}' for x in range(1, self.neb_replicas+1)]).values
 
-        print(f'<{self.id}> Energy bottom: {pe.min()}')
+        if not quiet:
+            print(f'<{self.id}> Energy bottom: {pe.min()}')
 
         if substract_min:
             pe = pe - pe.min()
