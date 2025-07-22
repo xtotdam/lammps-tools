@@ -42,13 +42,14 @@ import datetime
 import getpass
 import io
 import json
+import os
 import requests
 import shutil
 import subprocess
 import tarfile
 import time
 import uuid
-import os
+import zipfile
 
 
 class LammpsRunner:
@@ -68,7 +69,8 @@ class LammpsRunner:
         self.metadata['id'] = self.run_id
 
         timestring = time.strftime("%Y-%m-%d_%H-%M-%S", time.gmtime())
-        self.archive_name = f"lammpsrun_{timestring}_{self.metadata['id']}.tar.bz2"
+        # self.archive_name = f"lammpsrun_{timestring}_{self.metadata['id']}.tar.bz2"  # old
+        self.archive_name = f"lammpsrun_{timestring}_{self.metadata['id']}.lmp.zip"
 
         self.starttime = time.time()
 
@@ -121,7 +123,7 @@ class LammpsRunner:
             self.files_to_delete.extend(new_files)
 
 
-    def archive_files(self):
+    def archive_files_tarbz2(self):
         metadata_json = json.dumps(self.metadata, indent=2, sort_keys=True)
         metadata_info = tarfile.TarInfo('metadata.json')
         metadata_info.size = len(metadata_json)
@@ -135,7 +137,22 @@ class LammpsRunner:
 
             af.addfile(metadata_info, io.BytesIO(metadata_json.encode()))
 
-            return af.getmembers()
+        return af.getmembers()
+
+
+    def archive_files_zip(self):
+        metadata_json = json.dumps(self.metadata, indent=2, sort_keys=True)
+
+        with zipfile.ZipFile(self.archive_name, 'w', compresslevel=9, compression=zipfile.ZIP_LZMA) as af:
+            for f in self.files_to_archive:
+                try:
+                    af.write(f, arcname=f.name)
+                except Exception as e:
+                    print(e, f)
+
+            af.writestr('metadata.json', metadata_json)
+
+        return af.infolist()
 
 
     def delete_files(self):
@@ -199,7 +216,7 @@ if __name__ == '__main__':
     print('We archive:', app.files_to_archive)
     print('We delete:', app.files_to_delete)
 
-    af = app.archive_files()
+    af = app.archive_files_zip()
     print(af)
 
     if not args.skip_delete:    app.delete_files()

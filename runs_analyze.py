@@ -5,6 +5,7 @@ __version__ = '0.1'
 
 from pathlib import Path
 import tarfile
+import zipfile
 import json
 from io import StringIO
 from functools import cache
@@ -34,8 +35,9 @@ class LammpsRunFolder:
 
     def find(self, pattern:str='*'):
         ''' can be used like find('*id*') '''
-        runs = self.path.glob(f'lammpsrun_{pattern}.tar.bz2')
-        return sorted(list(runs))
+        runs1 = self.path.glob(f'lammpsrun_{pattern}.tar.bz2')
+        runs2 = self.path.glob(f'lammpsrun_{pattern}.lmp.zip')
+        return sorted(list(runs1) + list(runs2))
 
 
     def get_by_id(self, _id:str):
@@ -68,24 +70,29 @@ class LammpsRun:
         self.filename = str(self.path.name)
         self.neb_df = None
 
-        with tarfile.open(self.path, 'r') as archive:
-
-            try:
-                self.metadata = json.load(archive.extractfile('metadata.json'))
-            except KeyError:
-                self.metadata = dict()
+        if self.path.name.endswith('.tar.bz2'):
+            with tarfile.open(self.path, 'r') as archive:
 
                 try:
-                    self.metadata['command'] = archive.extractfile('command.sh').read().decode('utf8')
+                    self.metadata = json.load(archive.extractfile('metadata.json'))
                 except KeyError:
-                    self.metadata['command'] = None
+                    self.metadata = dict()
 
-                try:
-                    self.metadata['description'] = archive.extractfile('description.txt').read().decode('utf8')
-                except KeyError:
-                    self.metadata['description'] = None
+                    try:
+                        self.metadata['command'] = archive.extractfile('command.sh').read().decode('utf8')
+                    except KeyError:
+                        self.metadata['command'] = None
 
-                self.metadata['id'] = self.path.name.split('.')[0].split('_')[-1]
+                    try:
+                        self.metadata['description'] = archive.extractfile('description.txt').read().decode('utf8')
+                    except KeyError:
+                        self.metadata['description'] = None
+
+                    self.metadata['id'] = self.path.name.split('.')[0].split('_')[-1]
+
+        if self.path.name.endswith('.lmp.zip'):
+            with zipfile.ZipFile(self.path, 'r') as archive:
+                self.metadata = json.load(archive.open('metadata.json'))
         
         self.description = self.metadata['description']
         self.command     = self.metadata['command']
@@ -101,8 +108,13 @@ class LammpsRun:
 
 
     def get_file(self, name:str):
-        with tarfile.open(self.path, 'r') as archive:
-            return StringIO(archive.extractfile(name).read().decode())
+        if self.path.name.endswith('.tar.bz2'):
+            with tarfile.open(self.path, 'r') as archive:
+                return StringIO(archive.extractfile(name).read().decode())
+
+        if self.path.name.endswith('.lmp.zip'):
+            with zipfile.ZipFile(self.path, 'r') as archive:
+                return StringIO(archive.open(name).read().decode())
 
 
     def update_metadata(self, new_metadata:dict):
