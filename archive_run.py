@@ -179,7 +179,7 @@ class LammpsRunner:
         queued = out.count(' queued ')
 
         title = f"[{self.run_id}] {self.message}"
-        message = f'{self.command}\nRuntime {runtime} | @{self.cwd.stem}\n{running} run, {queued} in queue'
+        message = f'{self.command}\nRuntime {runtime} | @{self.cwd}\n{running} run, {queued} in queue'
 
         if running + queued == 1: message += ' --- I am last!'
 

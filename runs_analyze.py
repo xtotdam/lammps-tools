@@ -161,7 +161,7 @@ class LammpsRun:
         return data
 
 
-    def get_energy_path_traces(self, row:int=-1, substract_min:bool=True, name:str=None, quiet:bool=True):
+    def get_energy_path_traces(self, row:int=-1, substract_min:bool=True, name:str=None, quiet:bool=True, factor=1.):
         rd = self.neb_df.iloc[row].get([f'RD{x}' for x in range(1, self.neb_replicas+1)]).values
         pe = self.neb_df.iloc[row].get([f'PE{x}' for x in range(1, self.neb_replicas+1)]).values
 
@@ -177,7 +177,7 @@ class LammpsRun:
             if name.startswith('+'):
                 name = f'{self.id} row {row} {name[1:]}'
 
-        trace = go.Scatter(x=rd, y=pe, mode='lines+markers', name=name)
+        trace = go.Scatter(x=rd, y=factor*pe, mode='lines+markers', name=name)
         return trace
 
 
