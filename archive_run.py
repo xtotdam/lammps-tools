@@ -6,7 +6,7 @@ __version__ = '0.2'
 patterns = dict(
     # these files will be copied to temp. folder
     runfiles = [
-        '*.lmp', '*.ff', '*.molecule', '*.lammpsdata'
+        '*.lmp', '*.ff', '*.molecule', '*.lammpsdata', '*.include'
     ],
     # these files will be archived after run
     archive = [
