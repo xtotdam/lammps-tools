@@ -52,12 +52,13 @@ class LammpsRunFolder:
             return None
 
 
-    def describe(self):
+    def describe(self, verbose=False):
         runs = self.find()
         print(f'{self.path} --- {len(runs)} runs')
-        description = '\n'.join(str(LammpsRun(run)) for run in runs)
-        description = description.replace('\t[None]', '')
-        print(description)
+        if verbose:
+            description = '\n'.join(str(LammpsRun(run)) for run in runs)
+            description = description.replace('\t[None]', '')
+            print(description)
 
 
 
@@ -161,7 +162,7 @@ class LammpsRun:
         return data
 
 
-    def get_energy_path_traces(self, row:int=-1, substract_min:bool=True, name:str=None, quiet:bool=True, factor=1.):
+    def get_energy_path_traces(self, row:int=-1, substract_min:bool=True, name:str=None, quiet:bool=True, show_energies=True, factor=1.):
         rd = self.neb_df.iloc[row].get([f'RD{x}' for x in range(1, self.neb_replicas+1)]).values
         pe = self.neb_df.iloc[row].get([f'PE{x}' for x in range(1, self.neb_replicas+1)]).values
 
@@ -171,31 +172,38 @@ class LammpsRun:
         if substract_min:
             pe = pe - pe.min()
 
+        en = ''
+        if show_energies:
+            le = (pe.max() - pe[0])*factor
+            he = (pe.max() - pe[-1])*factor
+            en = f' [{le:.3f} / {he:.3f}]'
+
         if name is None:
-            name = f'{self.id} row {row}'
+            name = f'{self.id} row {row}{en}'
         else:
             if name.startswith('+'):
-                name = f'{self.id} row {row} {name[1:]}'
+                name = f'{self.id} row {row} {name[1:]}{en}'
 
         trace = go.Scatter(x=rd, y=factor*pe, mode='lines+markers', name=name)
         return trace
 
 
-    def get_transition_evolution_traces(self):
-        df = self.neb_df
+    def get_transition_evolution_traces(self, factor=1.):
+        df = self.neb_df.copy()
         traces = list()
 
-        start_trace = self.get_energy_path_traces(row=0, substract_min=False)
+        start_trace = self.get_energy_path_traces(row=0, substract_min=False, factor=factor)
         start_trace.line = dict(color='#ee0000', width=2)
         start_trace.marker = dict(size=15)
 
-        finish_trace = self.get_energy_path_traces(row=-1, substract_min=False)
+        finish_trace = self.get_energy_path_traces(row=-1, substract_min=False, factor=factor)
         finish_trace.line = dict(color='#00aa00', width=2)
         finish_trace.marker = dict(size=15)
 
         traces = [start_trace, finish_trace]
 
         for i in range(1, self.neb_replicas+1):
+            df[f'PE{i}'] *= factor
             traces.extend(px.scatter(df, x=f"RD{i}", y=df[f"PE{i}"], color="Step", height=400).data)
 
         return traces

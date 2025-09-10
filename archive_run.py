@@ -146,7 +146,7 @@ class LammpsRunner:
     def archive_files_zip(self):
         metadata_json = json.dumps(self.metadata, indent=2, sort_keys=True)
 
-        with zipfile.ZipFile(self.archive_name, 'w', compresslevel=9, compression=zipfile.ZIP_LZMA) as af:
+        with zipfile.ZipFile(f'{self.archive_name}.tmp', 'w', compresslevel=9, compression=zipfile.ZIP_LZMA) as af:
             for f in self.files_to_archive:
                 try:
                     af.write(f, arcname=f.name)
@@ -155,6 +155,7 @@ class LammpsRunner:
 
             af.writestr('metadata.json', metadata_json)
 
+        shutil.move(f'{self.archive_name}.tmp', self.archive_name)
         return af.infolist()
 
 
