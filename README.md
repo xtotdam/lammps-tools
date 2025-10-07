@@ -1,6 +1,8 @@
 lammps-tools
 ============
 
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/xtotdam/lammps-tools/blob/master/README.en.md)
+
 Разные полезности для удобной работы с LAMMPS
 
 ## Скрипты
