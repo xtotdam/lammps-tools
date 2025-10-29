@@ -4,7 +4,7 @@ __author__ = 'xtotdam'
 __version__ = '0.2'
 
 patterns = dict(
-    # these files will be copied to temp. folder
+    # these files will be copied to temporary folder
     runfiles = [
         '*.lmp', '*.ff', '*.molecule', '*.lammpsdata', '*.include'
     ],
@@ -104,6 +104,7 @@ class LammpsRunner:
 
 
     def compile_neb(self):
+        '''We do it the way described in http://genphys.phys.msu.ru/rus/sci/nanogroup/lammps-docs-22jul2025/neb.html'''
         try:
             for line in neb_compile_commands:
                 cp = subprocess.run(line, shell=True)
@@ -127,6 +128,7 @@ class LammpsRunner:
 
 
     def archive_files_tarbz2(self):
+        '''works ok but is very slow to read resulting files'''
         metadata_json = json.dumps(self.metadata, indent=2, sort_keys=True)
         metadata_info = tarfile.TarInfo('metadata.json')
         metadata_info.size = len(metadata_json)
@@ -166,9 +168,10 @@ class LammpsRunner:
 
 
     def notify(self):
-        ntfy_topic = os.getenv('NTFY_TOPIC')
+        '''completely optional. see https://ntfy.sh'''
+        ntfy_topic = os.getenv('NTFY_TOPIC_SELF')
         if ntfy_topic is None:
-            print('Cannot notify: NTFY_TOPIC environment variable is not set. See ntfy docs for more info.')
+            print('Cannot notify: NTFY_TOPIC_SELF environment variable is not set. See ntfy docs for more info.')
             return None
 
         runtime = time.time() - self.starttime

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 __author__ = 'xtotdam'
-__version__ = '0.1'
+__version__ = '0.2'
 
 from pathlib import Path
 import tarfile
@@ -53,6 +53,7 @@ class LammpsRunFolder:
 
 
     def describe(self, verbose=False):
+        '''print info about folder'''
         runs = self.find()
         print(f'{self.path} --- {len(runs)} runs')
         if verbose:
@@ -79,6 +80,7 @@ class LammpsRun:
                 except KeyError:
                     self.metadata = dict()
 
+                    # legacy
                     try:
                         self.metadata['command'] = archive.extractfile('command.sh').read().decode('utf8')
                     except KeyError:
@@ -133,6 +135,7 @@ class LammpsRun:
         N = int(lines[1].split(' ')[2])
         self.neb_replicas = N
 
+        # finding climbing part of neb run
         climbing_line = None
         for i,line in enumerate(lines):
             if 'Climbing' in line:
