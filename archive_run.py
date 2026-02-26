@@ -25,8 +25,8 @@ patterns = dict(
 )
 
 neb_compile_commands = [
-    'python /home/syromyatnikov/lammps/tools/python/neb_final.py   -o neb-dump.final.lammpsdata   -b dump.nonneb.1 -r dump.neb.*',
-    'python /home/syromyatnikov/lammps/tools/python/neb_combine.py -o neb-dump.combine.lammpsdata -b dump.nonneb.1 -r dump.neb.*'
+    'python /opt/lammps/tools/python/neb_final.py   -o neb-dump.final.lammpsdata   -b dump.nonneb.1 -r dump.neb.*',
+    'python /opt/lammps/tools/python/neb_combine.py -o neb-dump.combine.lammpsdata -b dump.nonneb.1 -r dump.neb.*'
 ]
 
 
@@ -101,6 +101,8 @@ class LammpsRunner:
             raise
         except KeyboardInterrupt:
             pass
+        except Exception as e:
+            print(f'Run ID = {self.run_id}\n\n{e}')
 
 
     def compile_neb(self):
