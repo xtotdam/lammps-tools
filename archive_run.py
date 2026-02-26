@@ -96,12 +96,6 @@ class LammpsRunner:
     def run_lammps(self):
         try:
             lammps_completed_process = subprocess.run(self.command, shell=True, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f'Run ID = {self.run_id}\n\n{e}')
-            e.add_note(f'Run ID = {self.run_id}')
-            raise
-        except KeyboardInterrupt:
-            pass
         except Exception as e:
             print(f'Run ID = {self.run_id}\n\n{e}')
 
