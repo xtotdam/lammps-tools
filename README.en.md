@@ -16,7 +16,7 @@ LAMMPS run archiver. Copies files to a temporary folder, runs the calculation, o
 
 At the beginning of the script, the `patterns` dictionary stores the templates of the file names that will be copied inside the run folder, archived and deleted.
 
-If you add a separate line of the form #@include X Y Z inside the script, then the files X Y Z will be added to the list of copied files.
+If you add a separate line of the form `#@include X Y Z` inside the script, then the files `X Y Z` will be added to the list of copied and archived files.
 
 ```
 # python archive_run.py --help
@@ -34,6 +34,21 @@ options:
   -m, --message [MESSAGE ...]
                         Description of the run
 ```
+
+#### `patterns`
+
+| runfiles       | archive        | delete                    |
+| -------------- | -------------- | ------------------------- |
+| `*.lmp`        | `*.lmp`        | `dump.neb.*`              |
+| `*.ff`         | `*.ff`         | `dump.nonneb.*`           |
+| `*.molecule`   | `*.molecule`   | `out.*.lammpsdata`        |
+| `*.lammpsdata` | `*.lammpstrj`  | `out.replica.*.lammpstrj` |
+| `*.include`    | `*.lammpsdata` | `log.lammps`              |
+|                | `dump.neb.*`   | `log.lammps.*`            |
+|                | `log.lammps`   | `screen.*`                |
+|                | `log.lammps.*` | `tmp.lammps.variable`     |
+|                | `screen.*`     |                           |
+|                | `final.coords` |                           |
 
 #### Example run
 

@@ -17,7 +17,7 @@ lammps-tools
 
 В начале скрипта словарь `patterns` хранит шаблоны имен файлов, которые будут скопированы для запуска, заархивированы и удалены.
 
-Если внутри скрипта добавить отдельную строку вида `#@include X Y Z`, то файлы `X Y Z` будут добавлены в список копируемых.
+Если внутри скрипта добавить отдельную строку вида `#@include X Y Z`, то файлы `X Y Z` будут добавлены в список копируемых и архивируемых.
 
 ```
 # python archive_run.py --help
@@ -35,6 +35,21 @@ options:
   -m, --message [MESSAGE ...]
                         Description of the run
 ```
+
+#### `patterns`
+
+| runfiles       | archive        | delete                    |
+| -------------- | -------------- | ------------------------- |
+| `*.lmp`        | `*.lmp`        | `dump.neb.*`              |
+| `*.ff`         | `*.ff`         | `dump.nonneb.*`           |
+| `*.molecule`   | `*.molecule`   | `out.*.lammpsdata`        |
+| `*.lammpsdata` | `*.lammpstrj`  | `out.replica.*.lammpstrj` |
+| `*.include`    | `*.lammpsdata` | `log.lammps`              |
+|                | `dump.neb.*`   | `log.lammps.*`            |
+|                | `log.lammps`   | `screen.*`                |
+|                | `log.lammps.*` | `tmp.lammps.variable`     |
+|                | `screen.*`     |                           |
+|                | `final.coords` |                           |
 
 #### Пример запуска
 
