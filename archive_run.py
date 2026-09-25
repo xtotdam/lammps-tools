@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 __author__ = 'xtotdam'
-__version__ = '0.2'
+__version__ = '0.3'
 
 patterns = dict(
     # these files will be copied to temporary folder
@@ -74,12 +74,25 @@ class LammpsRunner:
 
         self.starttime = time.time()
 
+        self.script_name = args.command[args.command.index('-in') + 1]
+
 
     def __str__(self):
         return f"<LammpsRunner [{self.run_id}] {self.message} === {self.command}>"
 
-    ### check for common mistakes in script
-    # uncommented quit?
+
+    def process_script(self):
+        with open(self.script_name, 'r') as f:
+            for line in f:
+                # search for lines starting with '#@include'
+                if line.strip().startswith('#@include'):
+                    parts = line.split()[1:]
+                    for p in parts:
+                        patterns['runfiles'].append(p)
+
+                # search for uncommented quits
+                if line.strip().startswith('quit'):
+                    print('Uncommented QUIT found!')
 
 
     def copy_to_temp_dir(self):
@@ -197,10 +210,10 @@ class LammpsRunner:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='LAMMPS Runner',
-        description='Runs LAMMPS, compiles NEB files, archives all data', epilog=f'v{__version__}')
+        description='Runs LAMMPS, compiles NEB files, archives all data. More at https://github.com/xtotdam/lammps-tools', epilog=f'v{__version__}')
     parser.add_argument('-d', '--skip-delete',  action='store_true', help='Skip deletion of files')
     parser.add_argument('-n', '--skip-ntfy',    action='store_true', help='Skip NTFY request')
-    parser.add_argument('-m', '--message', nargs='*', help='Run description')
+    parser.add_argument('-m', '--message', nargs='*', help='Description of the run')
     parser.add_argument('command', nargs='+', help='LAMMPS command to run')
 
     args = parser.parse_args()
@@ -209,6 +222,7 @@ if __name__ == '__main__':
     app = LammpsRunner(args)
     print(f'\n{app}\n')
 
+    app.process_script()
     app.copy_to_temp_dir()
 
     os.chdir(app.new_cwd)

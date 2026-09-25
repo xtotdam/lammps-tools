@@ -14,7 +14,9 @@ Various utilities for convenient work with LAMMPS
 
 LAMMPS run archiver. Copies files to a temporary folder, runs the calculation, optionally compiles NEB dumps, archives useful files, and deletes unnecessary files. Allows you to run multiple calculations on the same files with different parameters simultaneously in parallel.
 
-At the beginning of the script, the `patterns` dictionary stores the templates of the file names that will be archived and deleted.
+At the beginning of the script, the `patterns` dictionary stores the templates of the file names that will be copied inside the run folder, archived and deleted.
+
+If you add a separate line of the form #@include X Y Z inside the script, then the files X Y Z will be added to the list of copied files.
 
 ```
 # python archive_run.py --help
@@ -29,10 +31,8 @@ options:
   -h, --help            show this help message and exit
   -d, --skip-delete     Skip deletion of files
   -n, --skip-ntfy       Skip NTFY request
-  -m [MESSAGE ...], --message [MESSAGE ...]
-                        Run description
-
-v0.2
+  -m, --message [MESSAGE ...]
+                        Description of the run
 ```
 
 #### Example run
