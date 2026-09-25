@@ -89,6 +89,7 @@ class LammpsRunner:
                     parts = line.split()[1:]
                     for p in parts:
                         patterns['runfiles'].append(p)
+                        patterns['archive'].append(p)
 
                 # search for uncommented quits
                 if line.strip().startswith('quit'):
